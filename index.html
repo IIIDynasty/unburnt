@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unburnt: Saving History from the Flames</title>
+  <link rel="stylesheet" href="style.css?v=18">
+</head>
+<body>
+
+  <div id="game-container">
+
+    <!-- ═══ HEADER — always on top, never blocked ═══ -->
+    <header id="main-header" style="display: none;">
+      <div class="logo-section">
+        <h1>UNBURNT</h1>
+        <p>Saving Nigerian History</p>
+      </div>
+
+      <div class="hud-section" id="hud-controls" style="display: none;">
+        <div class="hud-item">
+          <span class="hud-label" id="hud-level-label">Stage</span>
+          <span class="hud-value" id="hud-level-val">1</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label" id="hud-saved-label">Saved</span>
+          <span class="hud-value" id="hud-saved-val">0 / 0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Score</span>
+          <span class="hud-value" id="hud-score-val">0</span>
+        </div>
+        <div class="hud-item" id="hud-highscore-item" style="display: none;">
+          <span class="hud-label">Best</span>
+          <span class="hud-value" id="hud-highscore-val" style="color: #ffd54f;">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Lives</span>
+          <div class="hud-lives" id="hud-lives-container"></div>
+        </div>
+      </div>
+
+      <!-- Buttons always visible -->
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn-icon" id="btn-audio-toggle" title="Mute/Unmute Sounds">
+          <svg id="svg-audio-on" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="svg-audio-off" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <!-- Global Home Button: ALWAYS visible, always works -->
+        <button class="btn-icon" id="btn-home" title="Return to Main Menu">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══ CANVAS CONTAINER — canvas + all overlays live inside ═══ -->
+    <div id="canvas-container">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Input buffer (shown during gameplay) -->
+      <div id="input-overlay" style="display: none;">
+        <div id="typed-buffer"></div>
+      </div>
+
+      <!-- ── Virtual On-Screen Keyboard (Mobile & Touch) ── -->
+      <div id="virtual-keyboard" style="display: none;">
+        <div class="kb-row">
+          <button class="kb-key" data-key="q" type="button">Q</button>
+          <button class="kb-key" data-key="w" type="button">W</button>
+          <button class="kb-key" data-key="e" type="button">E</button>
+          <button class="kb-key" data-key="r" type="button">R</button>
+          <button class="kb-key" data-key="t" type="button">T</button>
+          <button class="kb-key" data-key="y" type="button">Y</button>
+          <button class="kb-key" data-key="u" type="button">U</button>
+          <button class="kb-key" data-key="i" type="button">I</button>
+          <button class="kb-key" data-key="o" type="button">O</button>
+          <button class="kb-key" data-key="p" type="button">P</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key" data-key="a" type="button">A</button>
+          <button class="kb-key" data-key="s" type="button">S</button>
+          <button class="kb-key" data-key="d" type="button">D</button>
+          <button class="kb-key" data-key="f" type="button">F</button>
+          <button class="kb-key" data-key="g" type="button">G</button>
+          <button class="kb-key" data-key="h" type="button">H</button>
+          <button class="kb-key" data-key="j" type="button">J</button>
+          <button class="kb-key" data-key="k" type="button">K</button>
+          <button class="kb-key" data-key="l" type="button">L</button>
+        </div>
+        <div class="kb-row">
+          <button class="kb-key kb-action" data-key="Backspace" type="button" title="Delete">⌫</button>
+          <button class="kb-key" data-key="z" type="button">Z</button>
+          <button class="kb-key" data-key="x" type="button">X</button>
+          <button class="kb-key" data-key="c" type="button">C</button>
+          <button class="kb-key" data-key="v" type="button">V</button>
+          <button class="kb-key" data-key="b" type="button">B</button>
+          <button class="kb-key" data-key="n" type="button">N</button>
+          <button class="kb-key" data-key="m" type="button">M</button>
+          <button class="kb-key kb-action kb-enter" data-key="Enter" type="button" title="Switch Word">↵</button>
+        </div>
+      </div>
+
+      <!-- ── Screen 1: Main Menu ── -->
+      <div class="screen-overlay visible" id="screen-main-menu">
+        <!-- Desktop: Landscape Background Image / Mobile: Crimson Sunset Atmosphere -->
+        <div id="menu-bg"></div>
+        <div id="menu-gradient-overlay"></div>
+
+        <!-- Main Menu Brand & Start Button -->
+        <div id="menu-content-box">
+          <h2 class="menu-hero-title">UNBURNT</h2>
+          <p class="menu-hero-subtitle">Saving Nigerian History</p>
+          <button id="btn-play-journey" class="menu-start-btn" type="button">Start</button>
+        </div>
+      </div>
+
+      <!-- ── Screen 2: Category Select ── -->
+      <div class="screen-overlay" id="screen-category-select">
+        <div class="overlay-card" style="max-width: 760px; padding: 12px 24px 14px 24px; max-height: 98%;">
+          <h2 class="menu-title-logo" style="font-size: 28px; margin-bottom: 2px;">Choose Your Path</h2>
+          <p style="font-size: 11px; color: var(--text-muted); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 14px;">Select a chapter of Nigerian history or test your limits</p>
+
+          <!-- Endless Mode High Score Challenge Banner (AT TOP OF CHOOSE YOUR PATH) -->
+          <div class="endless-banner" id="btn-endless-mode" style="margin-bottom: 14px;">
+            <div class="endless-banner-content">
+              <div class="endless-badge">🔥 HIGH SCORE TRIAL</div>
+              <div class="endless-title">Endless Mode: The Eternal Flame</div>
+              <div class="endless-desc">Face relentless waves of short, medium, and long scrolls. Speed & scroll counts escalate every wave!</div>
+              <div class="endless-meta">
+                <span>🏆 High Score: <strong id="endless-meta-highscore">0</strong></span>
+                <span class="dot-sep">•</span>
+                <span>🌊 Best Wave: <strong id="endless-meta-bestwave">Wave 1</strong></span>
+              </div>
+            </div>
+            <button class="btn-primary endless-btn" id="btn-start-endless" type="button">Play Endless ⚡</button>
+          </div>
+
+          <div class="category-grid" id="category-selection-grid" style="margin-bottom: 12px;">
+            <!-- Populated by JS -->
+          </div>
+
+          <div class="btn-container" style="margin-top: 10px;">
+            <button class="btn-secondary" id="btn-category-back" style="padding: 10px 24px; font-size: 13px;">Back to Menu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Screen 3: Level Select (within a category) ── -->
+      <div class="screen-overlay" id="screen-level-select">
+        <div class="overlay-card" style="max-width: 680px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <span id="level-select-icon" style="font-size: 28px;">🔥</span>
+            <div style="text-align: left;">
+              <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted);">Category</div>
+              <h2 class="menu-title-logo" style="font-size: 26px; margin: 0;" id="level-select-title">Legends & Folktales</h2>
+            </div>
+          </div>
+
+          <div class="level-grid" id="level-selection-grid">
+            <!-- Populated by JS -->
+          </div>
+          <div class="btn-container">
+            <button class="btn-secondary" id="btn-level-back">← All Categories</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Screen 4: Level Intro ── -->
+      <div class="screen-overlay" id="screen-level-intro">
+        <div class="overlay-card level-intro-screen">
+          <h3 class="intro-title" id="intro-title-text">Title</h3>
+
+          <div style="text-align: left; font-size: 10px; text-transform: uppercase; color: var(--secondary); letter-spacing: 1px; margin-bottom: 5px; font-weight: 600;">
+            📜 Damaged Scroll — type the dotted words to restore history:
+          </div>
+          <div id="intro-preview-container" style="
+            background: rgba(14, 8, 5, 0.9);
+            border: 1.5px dashed rgba(255, 87, 34, 0.4);
+            border-radius: 6px;
+            padding: 12px 18px;
+            text-align: left;
+            font-size: 12px;
+            line-height: 1.9;
+            margin-bottom: 18px;
+            max-height: 130px;
+            overflow: hidden;
+            color: var(--text-muted);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+          "></div>
+
+          <div class="btn-container">
+            <button class="btn-primary" id="btn-start-level">Rescue Scrolls</button>
+            <button class="btn-secondary" id="btn-intro-back">← Back</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Stage Cleared Popup Overlay ── -->
+      <div class="screen-overlay" id="screen-stage-cleared-popup">
+        <div class="overlay-card stage-cleared-card">
+          <div style="font-size: 50px; margin-bottom: 10px; animation: popBounce 0.6s ease;">📜✨</div>
+          <h2 class="menu-title-logo" style="font-size: 32px; color: #ffc107; margin-bottom: 6px;">History Saved!</h2>
+          <p style="font-size: 14px; color: #f7f1eb; line-height: 1.5; margin-bottom: 22px;">
+            You have successfully rescued all scrolls for this chapter from the fire!
+          </p>
+          <div class="btn-container">
+            <button class="btn-primary" id="btn-view-history" style="padding: 14px 32px; font-size: 16px;">Read Restored Scroll →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Screen 5: History Unlock Modal ── -->
+      <div class="screen-overlay" id="screen-history-modal">
+        <div class="history-layout">
+          <div class="history-artwork-col">
+            <div class="history-image-frame" id="history-artwork-frame"></div>
+          </div>
+          <div class="history-text-col">
+            <div class="history-header">
+              <span class="history-pre" id="history-badge-era">Era</span>
+              <h3 class="history-title" id="history-title-text-unlocked">Title</h3>
+            </div>
+            <div class="history-body" id="history-narrative-text">Story text...</div>
+            <div class="history-actions">
+              <button class="btn-primary" id="btn-history-next">Proceed →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Screen 6: Result (Game Over / Level Win) ── -->
+      <div class="screen-overlay" id="screen-game-result">
+        <div class="overlay-card">
+          <h2 class="result-title lose" id="result-header-text">Scrolls Burnt</h2>
+          <p class="result-subtitle" id="result-subheader-text">Too many scrolls were lost to the fire.</p>
+          <div class="stat-row">
+            <div class="stat-box">
+              <div class="stat-num" id="stat-score">0</div>
+              <div class="stat-label">Score</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-accuracy">0%</div>
+              <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="stat-wpm">0</div>
+              <div class="stat-label">WPM</div>
+            </div>
+          </div>
+          <div class="btn-container">
+            <button class="btn-primary" id="btn-result-action">Try Again</button>
+            <button class="btn-secondary" id="btn-result-menu">All Levels</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Quit Confirmation Mini-Modal ── -->
+      <div id="screen-quit-confirm" style="
+        display: none; position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(5, 3, 2, 0.88);
+        backdrop-filter: blur(8px);
+        z-index: 150;
+        justify-content: center; align-items: center;
+      ">
+        <div style="
+          background: rgba(30, 18, 10, 0.98);
+          border: 2px solid rgba(255, 87, 34, 0.4);
+          border-radius: 12px; padding: 32px 40px;
+          text-align: center; max-width: 380px; width: 90%;
+        ">
+          <div style="font-family: 'Outfit',sans-serif; font-weight: 800; font-size: 20px; color: #ffc107; margin-bottom: 10px;">Return to Menu?</div>
+          <div style="font-size: 13px; color: #bdaea2; margin-bottom: 28px; line-height: 1.5;">Your current run will be abandoned. The scrolls will return to the flames.</div>
+          <div style="display: flex; gap: 15px; justify-content: center;">
+            <button id="btn-quit-yes" style="background: linear-gradient(135deg,#d84315,#ff5722); color: white; border: none; font-family: 'Outfit',sans-serif; font-weight: 700; font-size: 15px; padding: 12px 28px; border-radius: 6px; cursor: pointer; letter-spacing: 1px;">Yes, Quit</button>
+            <button id="btn-quit-no" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #f7f1eb; font-family: 'Outfit',sans-serif; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 6px; cursor: pointer;">Keep Playing</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end #canvas-container -->
+
+  </div><!-- end #game-container -->
+
+  <script src="stories.js?v=18"></script>
+  <script src="audio.js?v=18"></script>
+  <script src="game.js?v=18"></script>
+</body>
+</html>

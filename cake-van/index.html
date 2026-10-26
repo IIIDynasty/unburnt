@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cake & Ice Cream Van - Kids Cooking Game</title>
+  <meta name="description" content="A cheerful, colorful mobile cake and ice cream van game for kids. Take orders, assemble sweet treats, and serve happy customers!">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Main Game Container -->
+  <main id="game-app">
+
+    <!-- ══════════════ HUD / STATUS BAR ══════════════ -->
+    <header class="hud-header">
+      <div class="hud-group">
+        <div class="hud-badge" id="hud-round-badge">
+          <span>🚩</span>
+          <span id="hud-round-val">Round 1</span>
+        </div>
+        <div class="hud-badge hud-money">
+          <svg class="coin-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#FFD166" stroke="#E5A610" stroke-width="2"/>
+            <text x="12" y="16" text-anchor="middle" font-size="12" font-weight="bold" fill="#B37400">$</text>
+          </svg>
+          <span id="hud-money-val">$0</span>
+        </div>
+      </div>
+
+      <div class="hud-group">
+        <div class="hud-badge">
+          <span>👥</span>
+          <span>Customer: <strong id="hud-customer-val">1 of 3</strong></span>
+        </div>
+        <button id="btn-mute" class="hud-btn" title="Toggle Sound">🔊</button>
+        <button id="btn-help" class="hud-btn" title="How to Play">❓</button>
+      </div>
+    </header>
+
+    <!-- ══════════════ VIEWPORT / VAN & CUSTOMER ══════════════ -->
+    <section class="game-viewport">
+      <!-- Decorative Background Clouds -->
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+
+      <!-- Stage Area with Van & Customer -->
+      <div class="stage-area">
+        <div class="van-container">
+          <!-- Roof Sign -->
+          <div class="van-roof-sign">
+            <span>🎂</span>
+            <span>SWEET DELIGHTS VAN</span>
+            <span>🍦</span>
+          </div>
+
+          <!-- Striped Awning -->
+          <div class="van-awning"></div>
+
+          <!-- Van Serving Window & Customer -->
+          <div class="van-body">
+            <div class="van-window-frame">
+              <div class="customer-zone">
+                <!-- Customer Character SVG slot -->
+                <div id="customer-character-slot" class="customer-character">
+                  <!-- Injected via game.js -->
+                </div>
+
+                <!-- Speech Bubble with Order -->
+                <div class="speech-bubble" id="speech-bubble">
+                  <div class="bubble-title" id="bubble-customer-greeting">Customer wants:</div>
+                  <div class="bubble-order-items" id="bubble-order-items">
+                    <!-- Injected via game.js -->
+                  </div>
+
+                  <!-- Patience Timer Bar -->
+                  <div class="patience-timer-box">
+                    <span class="timer-icon">⏳</span>
+                    <div class="patience-bar-track">
+                      <div class="patience-bar-fill" id="patience-bar-fill"></div>
+                    </div>
+                    <span class="patience-text" id="patience-seconds-text">28s</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PREPARATION WORKBENCH ══════════════ -->
+      <section class="workbench-section">
+        <!-- Live Creation Display Bar -->
+        <div class="assembly-display-bar">
+          <div class="current-assembly-info">
+            <div class="plate-canvas-wrapper" id="plate-visual-slot">
+              <!-- Live SVG Cake or Ice cream injected here -->
+            </div>
+            <div class="assembly-text-summary">
+              <span class="assembly-label">Your Creation on the Counter:</span>
+              <span class="assembly-item-names" id="assembly-item-names">Empty Plate — Choose an item below!</span>
+            </div>
+          </div>
+
+          <div class="action-buttons-group">
+            <button id="btn-trash" class="btn-trash" title="Reset this plate">
+              <span>🗑️</span>
+              <span>Clear Plate</span>
+            </button>
+            <button id="btn-serve" class="btn-serve" disabled>
+              <span>✨</span>
+              <span>SERVE ORDER!</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selection Panels: Step 1, Step 2, Step 3 -->
+        <div class="selection-panels">
+          <!-- Panel 1: Treat Type -->
+          <div class="panel-card">
+            <div class="panel-header-title">
+              <span>1️⃣</span> <span>Choose Treat</span>
+            </div>
+            <div class="panel-options-grid">
+              <button class="select-btn product-btn" data-product="cake">
+                <span class="option-icon">🎂</span>
+                <span>Cake</span>
+              </button>
+              <button class="select-btn product-btn" data-product="ice_cream">
+                <span class="option-icon">🍦</span>
+                <span>Ice Cream</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Panel 2: Flavors -->
+          <div class="panel-card">
+            <div class="panel-header-title">
+              <span>2️⃣</span> <span>Choose Flavor</span>
+            </div>
+            <div class="panel-options-grid" id="flavor-options-grid">
+              <!-- Dynamically populated based on treat -->
+            </div>
+          </div>
+
+          <!-- Panel 3: Toppings -->
+          <div class="panel-card">
+            <div class="panel-header-title">
+              <span>3️⃣</span> <span>Add Topping</span>
+            </div>
+            <div class="panel-options-grid" id="topping-options-grid">
+              <!-- Dynamically populated based on treat -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ══════════════ START SCREEN OVERLAY ══════════════ -->
+    <div class="overlay-screen" id="start-screen">
+      <div class="modal-dialog">
+        <div style="font-size: 3.5rem; animation: bounce-gentle 1.8s infinite;">🎂🚐🍦</div>
+        <h1 class="modal-title">Cake & Ice Cream Van!</h1>
+        <p class="modal-subtitle">Welcome to your mobile sweet shop! Friendly animal pals and kids will line up for delicious cakes and frosty ice cream cones!</p>
+
+        <div class="tutorial-box">
+          <div class="tutorial-step">
+            <span class="tutorial-num">1</span>
+            <span>Check what each customer wants in their speech bubble.</span>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">2</span>
+            <span>Pick the right <strong>Treat</strong>, <strong>Flavor</strong>, and <strong>Topping</strong>.</span>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">3</span>
+            <span>Click <strong>SERVE ORDER</strong> before their patience timer runs out to earn coins and speed bonuses!</span>
+          </div>
+        </div>
+
+        <button id="btn-start-game" class="btn-primary-large">
+          <span>🚀 START PLAYING!</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════ ROUND RESULTS OVERLAY ══════════════ -->
+    <div class="overlay-screen" id="results-screen" style="display: none;">
+      <canvas id="confetti-canvas"></canvas>
+      <div class="modal-dialog">
+        <div style="font-size: 3.2rem;">🏆</div>
+        <h2 class="modal-title" id="results-title">Round 1 Complete! 🎉</h2>
+
+        <div class="stars-container" id="results-stars">
+          <span class="star-icon">★</span>
+          <span class="star-icon">★</span>
+          <span class="star-icon">★</span>
+        </div>
+
+        <div class="modal-stats-card">
+          <div class="stat-row">
+            <span class="stat-label">Happy Customers Served:</span>
+            <span class="stat-value" id="results-served-val">3 of 3</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Customers Who Left:</span>
+            <span class="stat-value" id="results-left-val">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Coins Earned This Round:</span>
+            <span class="stat-value" id="results-round-money">+$35</span>
+          </div>
+          <div class="stat-row total-money">
+            <span class="stat-label">Total Van Bank:</span>
+            <span class="stat-value" id="results-total-money">$35</span>
+          </div>
+        </div>
+
+        <button id="btn-next-round" class="btn-primary-large">
+          <span>NEXT ROUND ➡️</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════ HELP MODAL ══════════════ -->
+    <div class="overlay-screen" id="help-modal" style="display: none;">
+      <div class="modal-dialog">
+        <h2 class="modal-title">How To Play</h2>
+        
+        <div class="tutorial-box" style="width: 100%;">
+          <div class="tutorial-step">
+            <span class="tutorial-num">🎂</span>
+            <span><strong>Cakes:</strong> Pick Chocolate or Vanilla sponge, then add Strawberries, Chocolate curls, or leave plain.</span>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">🍦</span>
+            <span><strong>Ice Creams:</strong> Pick Vanilla, Chocolate, or Strawberry scoop, then add Chocolate syrup, Rainbow sprinkles, or leave plain.</span>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">⚡</span>
+            <span><strong>Speed Bonus:</strong> Serve customers in the first few seconds to earn extra bonus cash!</span>
+          </div>
+          <div class="tutorial-step">
+            <span class="tutorial-num">🗑️</span>
+            <span><strong>Made a Mistake?</strong> Click the "Clear Plate" button anytime to start that order fresh before serving.</span>
+          </div>
+        </div>
+
+        <button id="btn-close-help" class="btn-primary-large">
+          <span>GOT IT! 👍</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Audio and Game Logic Scripts -->
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
